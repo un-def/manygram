@@ -40,10 +40,17 @@ func (c *runCmd) Execute(args []string) error {
 			return err
 		}
 	}
+
+	telegram, err := tg.Executable(conf.ExecPath)
+	if err != nil {
+		return err
+	}
+
 	profileDir := conf.ProfileDir
 	if profileDir == "" {
 		return errors.New("profile-dir config option is not set")
 	}
+
 	profileName := c.Profile.Name
 	var prof *profile.Profile
 	if c.New {
@@ -53,5 +60,6 @@ func (c *runCmd) Execute(args []string) error {
 	} else if prof, err = profile.Read(profileDir, profileName); err != nil {
 		return err
 	}
-	return tg.Run(conf.BinPath, prof.Path, args, c.Wait)
+
+	return telegram.Run(prof.Path, args, c.Wait)
 }

@@ -46,7 +46,7 @@ func TestReadMalformed(t *testing.T) {
 
 func TestReadOK(t *testing.T) {
 	content := []byte(`
-		bin-path = "/path/to/bin"
+		exec-path = "/path/to/bin"
 		profile-dir = "/path/to/profiles"
 	`)
 	tmpfile, err := ioutil.TempFile("", "test-config-*.toml")
@@ -60,7 +60,7 @@ func TestReadOK(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, &Config{
 		path:       path,
-		BinPath:    "/path/to/bin",
+		ExecPath:   "/path/to/bin",
 		ProfileDir: "/path/to/profiles",
 	}, conf)
 }

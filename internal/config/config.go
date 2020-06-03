@@ -13,7 +13,7 @@ import (
 // Config ...
 type Config struct {
 	path       string
-	BinPath    string `toml:"bin-path"`
+	ExecPath   string `toml:"exec-path"`
 	ProfileDir string `toml:"profile-dir"`
 }
 
@@ -40,8 +40,8 @@ func Read(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !md.IsDefined("bin-path") {
-		return nil, errors.New("bin-path is not defined")
+	if !md.IsDefined("exec-path") {
+		return nil, errors.New("exec-path is not defined")
 	}
 	conf.path = path
 	return conf, nil
@@ -51,7 +51,7 @@ func Read(path string) (*Config, error) {
 func Default(path string) *Config {
 	return &Config{
 		path:       path,
-		BinPath:    "telegram-desktop",
+		ExecPath:   "telegram-desktop",
 		ProfileDir: "",
 	}
 }
