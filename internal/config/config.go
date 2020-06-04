@@ -29,6 +29,11 @@ func (c *Config) Write() error {
 	return ioutil.WriteFile(c.path, buf.Bytes(), 0644)
 }
 
+// New returns new empty config
+func New(path string) *Config {
+	return &Config{path: path}
+}
+
 // Read reads the config from the specified location
 func Read(path string) (*Config, error) {
 	bs, err := ioutil.ReadFile(path)
@@ -48,13 +53,4 @@ func Read(path string) (*Config, error) {
 	}
 	conf.path = path
 	return conf, nil
-}
-
-// Default returns the default config
-func Default(path string) *Config {
-	return &Config{
-		path:       path,
-		ExecPath:   "telegram-desktop",
-		ProfileDir: "",
-	}
 }

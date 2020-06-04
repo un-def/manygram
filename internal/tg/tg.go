@@ -1,16 +1,21 @@
 package tg
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 func wrapError(err error) error {
 	return fmt.Errorf("check executable: %w", err)
 }
+
+// DefaultPath is the default path/name of Telegram Desktop executable
+const DefaultPath = "telegram-desktop"
 
 // TelegramDesktop represents Telegram Desktop executable
 type TelegramDesktop struct {
@@ -21,6 +26,10 @@ type TelegramDesktop struct {
 
 // Executable returns TelegramDesktop struct or error if executable not found
 func Executable(path string) (*TelegramDesktop, error) {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return nil, errors.New("empty path")
+	}
 	fullPath, err := exec.LookPath(path)
 	if err != nil {
 		return nil, wrapError(err)
@@ -47,4 +56,13 @@ func (tg *TelegramDesktop) Run(profilePath string, extraArgs []string, wait bool
 // IsSnap returns true if executable seems installed with snap
 func (tg *TelegramDesktop) IsSnap() bool {
 	return path.Base(tg.RealPath) == "snap"
+}
+
+// GetSnapDataHome returns XDG_DATA_HOME of Telegram Desktop snap or error
+func GetSnapDataHome() (string, error) {
+	snapDataHome := os.ExpandEnv("$HOME/snap/telegram-desktop/current/.local/share")
+	if _, err := os.Stat(snapDataHome); err != nil {
+		return "", err
+	}
+	return snapDataHome, nil
 }

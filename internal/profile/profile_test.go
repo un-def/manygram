@@ -119,3 +119,46 @@ func (s *TestReadSuite) TestErrorIsFile() {
 func TestReaduiteTest(t *testing.T) {
 	suite.Run(t, new(TestReadSuite))
 }
+
+type TestIsProfileDirExistSuite struct {
+	suite.Suite
+	dir string
+}
+
+func (s *TestIsProfileDirExistSuite) SetupTest() {
+	dir, err := ioutil.TempDir("", "test-profile-dir-*")
+	s.Require().NoError(err)
+	s.dir = dir
+}
+
+func (s *TestIsProfileDirExistSuite) TearDownTest() {
+	err := os.RemoveAll(s.dir)
+	s.Require().NoError(err)
+}
+
+func (s *TestIsProfileDirExistSuite) TestOKNotExist() {
+	exist, err := IsProfileDirExist(path.Join(s.dir, "profiles"))
+	s.Require().NoError(err)
+	s.Require().False(exist)
+}
+
+func (s *TestIsProfileDirExistSuite) TestOKExist() {
+	exist, err := IsProfileDirExist(s.dir)
+	s.Require().NoError(err)
+	s.Require().True(exist)
+}
+
+func (s *TestIsProfileDirExistSuite) TestErrIsFile() {
+	path := path.Join(s.dir, "profiles")
+	f, err := os.Create(path)
+	s.Require().NoError(err)
+	f.Close()
+	exist, err := IsProfileDirExist(path)
+	s.Require().Error(err)
+	s.Require().Regexp("is a file", err.Error())
+	s.Require().False(exist)
+}
+
+func TestIsProfileDirExistSuiteTest(t *testing.T) {
+	suite.Run(t, new(TestIsProfileDirExistSuite))
+}

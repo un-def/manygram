@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"strings"
 )
 
 // Profile type
@@ -55,4 +56,23 @@ func Read(dir string, name string) (*Profile, error) {
 		return nil, fmt.Errorf("%s: is a file", path)
 	}
 	return &Profile{dir, name, path}, nil
+}
+
+// IsProfileDirExist checks whether profile directory exists
+func IsProfileDirExist(path string) (bool, error) {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return false, fmt.Errorf("%s: empty path", path)
+	}
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	if !info.IsDir() {
+		return false, fmt.Errorf("%s: is a file", path)
+	}
+	return true, nil
 }

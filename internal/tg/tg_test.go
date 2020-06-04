@@ -143,3 +143,41 @@ func (s *TestTelegramSuite) TestIsSnapTrue() {
 func TestTelegramSuiteTest(t *testing.T) {
 	suite.Run(t, new(TestTelegramSuite))
 }
+
+type TestGetSnapDataHomeSuite struct {
+	suite.Suite
+	dir      string
+	origHOME string
+}
+
+func (s *TestGetSnapDataHomeSuite) SetupTest() {
+	dir, err := ioutil.TempDir("", "test-tg-snap-dir-*")
+	s.Require().NoError(err)
+	s.dir = dir
+	s.origHOME = os.Getenv("HOME")
+	os.Setenv("HOME", dir)
+}
+
+func (s *TestGetSnapDataHomeSuite) TearDownTest() {
+	os.Setenv("HOME", s.origHOME)
+	err := os.RemoveAll(s.dir)
+	s.Require().NoError(err)
+}
+
+func (s *TestGetSnapDataHomeSuite) TestErr() {
+	path, err := GetSnapDataHome()
+	s.Require().Error(err)
+	s.Require().Equal("", path)
+}
+
+func (s *TestGetSnapDataHomeSuite) TestOK() {
+	dataHome := path.Join(s.dir, "snap/telegram-desktop/current/.local/share")
+	os.MkdirAll(dataHome, 0777)
+	path, err := GetSnapDataHome()
+	s.Require().NoError(err)
+	s.Require().Equal(dataHome, path)
+}
+
+func TestGetSnapDataHomeSuiteTest(t *testing.T) {
+	suite.Run(t, new(TestGetSnapDataHomeSuite))
+}

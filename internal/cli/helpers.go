@@ -8,15 +8,14 @@ import (
 	"github.com/un-def/manygram/internal/xdg"
 )
 
-var configPath string
+const profileDirName = "profiles"
 
 func getConfigPath() string {
-	if configPath != "" {
-		return configPath
-	}
-	configHome := xdg.GetConfigHome()
-	configPath = path.Join(configHome, "manygram", "config.toml")
-	return configPath
+	return path.Join(xdg.GetConfigHome(), "manygram", "config.toml")
+}
+
+func getDefaultProfileDir(dataDir string) string {
+	return path.Join(dataDir, "manygram", profileDirName)
 }
 
 func printMessage(format string, args ...interface{}) {
