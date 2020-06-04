@@ -1,6 +1,6 @@
 project := 'manygram'
 
-build_args := "-trimpath"
+build_args := "-trimpath -ldflags='-s -w'"
 
 _list:
   @just --list
