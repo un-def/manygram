@@ -10,7 +10,7 @@ import (
 func main() {
 	err := cli.Run(os.Args[1:])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err.NiceError())
 		os.Exit(1)
 	}
 }

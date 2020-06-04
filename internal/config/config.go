@@ -43,6 +43,9 @@ func Read(path string) (*Config, error) {
 	if !md.IsDefined("exec-path") {
 		return nil, errors.New("exec-path is not defined")
 	}
+	if !md.IsDefined("profile-dir") {
+		return nil, errors.New("profile-dir is not defined")
+	}
 	conf.path = path
 	return conf, nil
 }

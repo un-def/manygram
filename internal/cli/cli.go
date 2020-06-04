@@ -18,7 +18,7 @@ func commandHandler(command flags.Commander, args []string) error {
 }
 
 // Run command line interface
-func Run(args []string) error {
+func Run(args []string) *Error {
 	parser.SubcommandsOptional = true
 	parser.CommandHandler = commandHandler
 	if _, err := parser.ParseArgs(args); err != nil {
@@ -26,7 +26,10 @@ func Run(args []string) error {
 			parser.WriteHelp(os.Stdout)
 			return nil
 		}
-		return err
+		if cliErr, ok := err.(*Error); ok {
+			return cliErr
+		}
+		return newError("Unexpected error", err)
 	}
 	return nil
 }

@@ -9,10 +9,10 @@ import (
 )
 
 func wrapError(err error) error {
-	return fmt.Errorf("check telegram-desktop executable: %w", err)
+	return fmt.Errorf("check executable: %w", err)
 }
 
-// TelegramDesktop represents telegram-desktop xecutable
+// TelegramDesktop represents Telegram Desktop executable
 type TelegramDesktop struct {
 	Path     string
 	FullPath string

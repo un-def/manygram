@@ -3,12 +3,10 @@ package cli
 import (
 	"errors"
 	"os"
-	"path"
 
 	"github.com/un-def/manygram/internal/config"
 	"github.com/un-def/manygram/internal/profile"
 	"github.com/un-def/manygram/internal/tg"
-	"github.com/un-def/manygram/internal/xdg"
 )
 
 func init() {
@@ -28,18 +26,22 @@ type runCmd struct {
 }
 
 func (c *runCmd) Execute(args []string) error {
-	configHome := xdg.GetConfigHome()
-	configPath := path.Join(configHome, "manygram", "config.toml")
+	configPath := getConfigPath()
 	conf, err := config.Read(configPath)
 	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			return err
+		if errors.Is(err, os.ErrNotExist) {
+			return newError(
+				"Config %s not found. Run `manygram config` to create a new config.",
+				configPath, err,
+			)
 		}
-		conf = config.Default(configPath)
-		if err = conf.Write(); err != nil {
-			return err
-		}
+		return newError("Failed to read config %s", configPath, err)
 	}
+
+	// conf = config.Default(configPath)
+	// if err = conf.Write(); err != nil {
+	// 	return err
+	// }
 
 	telegram, err := tg.Executable(conf.ExecPath)
 	if err != nil {
