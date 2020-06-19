@@ -44,3 +44,9 @@ func newError(format string, args ...interface{}) *Error {
 	message := fmt.Sprintf(format, args...)
 	return &Error{message, origError}
 }
+
+func profileNameError(name string) *Error {
+	message := fmt.Sprintf(`Invalid profile name '%s'.
+Profile name must consist of only letters, digits, and underscores (A-Za-z0-9_) and must start with a letter.`, name)
+	return &Error{message, nil}
+}

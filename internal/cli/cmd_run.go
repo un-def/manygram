@@ -56,6 +56,9 @@ func (c *runCmd) Execute(args []string) error {
 		prof, err = profile.Read(profileDir, profileName)
 	}
 	if err != nil {
+		if errors.Is(err, profile.ErrInvalidName) {
+			return profileNameError(profileName)
+		}
 		if errors.Is(err, profile.ErrNotExist) {
 			return newError("Profile '%s' does not exist. Use `--new` flag to create a new one.", profileName)
 		}

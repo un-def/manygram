@@ -78,6 +78,13 @@ func (s *TestNewSuite) TestErrorIsFile() {
 	s.Require().Nil(profile)
 }
 
+func (s *TestNewSuite) TestErrInvalidName() {
+	profile, err := New(s.dir, "foo/bar")
+	s.Require().Error(err)
+	s.Require().Regexp("invalid profile name", err.Error())
+	s.Require().Nil(profile)
+}
+
 func TestNewSuiteTest(t *testing.T) {
 	suite.Run(t, new(TestNewSuite))
 }
@@ -114,6 +121,13 @@ func (s *TestReadSuite) TestErrorIsFile() {
 	profile, err := Read(s.dir, s.name)
 	s.Require().Error(err)
 	s.Require().Regexp("is a file", err.Error())
+	s.Require().Nil(profile)
+}
+
+func (s *TestReadSuite) TestErrInvalidName() {
+	profile, err := Read(s.dir, "1foobar")
+	s.Require().Error(err)
+	s.Require().Regexp("invalid profile name", err.Error())
 	s.Require().Nil(profile)
 }
 

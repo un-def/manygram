@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 )
 
@@ -21,8 +22,16 @@ var ErrAlreadyExists = errors.New("already exists")
 // ErrNotExist is returned by the Read() function when the profile directory does not exist
 var ErrNotExist = os.ErrNotExist
 
+// ErrInvalidName indicates that the profile name does not meet requirements
+var ErrInvalidName = errors.New("invalid profile name")
+
+var profileNameRegexp = regexp.MustCompile("^[A-Za-z][A-Za-z0-9_]*$")
+
 // New creates a new profile directory
 func New(dir string, name string) (*Profile, error) {
+	if !IsValidName(name) {
+		return nil, ErrInvalidName
+	}
 	path := path.Join(dir, name)
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -41,6 +50,9 @@ func New(dir string, name string) (*Profile, error) {
 
 // Read checks if the profile directory exists
 func Read(dir string, name string) (*Profile, error) {
+	if !IsValidName(name) {
+		return nil, ErrInvalidName
+	}
 	path := path.Join(dir, name)
 	info, err := os.Stat(path)
 	if err != nil {
@@ -50,6 +62,11 @@ func Read(dir string, name string) (*Profile, error) {
 		return nil, fmt.Errorf("%s: is a file", path)
 	}
 	return &Profile{dir, name, path}, nil
+}
+
+// IsValidName checks whether the profile name meets requirements
+func IsValidName(name string) bool {
+	return profileNameRegexp.MatchString(name)
 }
 
 // IsProfileDirExist checks whether profile directory exists
