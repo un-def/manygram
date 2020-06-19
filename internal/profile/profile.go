@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -13,6 +14,12 @@ type Profile struct {
 	Name string
 	Path string
 }
+
+// ErrAlreadyExists is returned by the New() function when the profile directory exists
+var ErrAlreadyExists = errors.New("already exists")
+
+// ErrNotExist is returned by the Read() function when the profile directory does not exist
+var ErrNotExist = os.ErrNotExist
 
 // New creates a new profile directory
 func New(dir string, name string) (*Profile, error) {
@@ -29,7 +36,7 @@ func New(dir string, name string) (*Profile, error) {
 	if !info.IsDir() {
 		return nil, fmt.Errorf("%s: is a file", path)
 	}
-	return nil, fmt.Errorf("%s: already exists", path)
+	return nil, fmt.Errorf("%s: %w", path, ErrAlreadyExists)
 }
 
 // Read checks if the profile directory exists

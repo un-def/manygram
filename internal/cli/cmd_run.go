@@ -38,30 +38,34 @@ func (c *runCmd) Execute(args []string) error {
 		return newError("Failed to read config %s", configPath, err)
 	}
 
-	// conf = config.Default(configPath)
-	// if err = conf.Write(); err != nil {
-	// 	return err
-	// }
-
 	telegram, err := tg.Executable(conf.ExecPath)
 	if err != nil {
-		return err
+		return newError("Failed to locale Telegram Desktop executable. Check `exec-path` config parameter.", err)
 	}
 
 	profileDir := conf.ProfileDir
 	if profileDir == "" {
-		return errors.New("profile-dir config option is not set")
+		return newError("`profile-dir` config parameter is not set.")
 	}
 
 	profileName := c.Profile.Name
 	var prof *profile.Profile
 	if c.New {
-		if prof, err = profile.New(profileDir, profileName); err != nil {
-			return err
-		}
-	} else if prof, err = profile.Read(profileDir, profileName); err != nil {
-		return err
+		prof, err = profile.New(profileDir, profileName)
+	} else {
+		prof, err = profile.Read(profileDir, profileName)
 	}
-
+	if err != nil {
+		if errors.Is(err, profile.ErrNotExist) {
+			return newError("Profile '%s' does not exist. Use `--new` flag to create a new one.", profileName)
+		}
+		if errors.Is(err, profile.ErrAlreadyExists) {
+			return newError(
+				"Profile '%s' already exists. Use `manygram remove %[1]s` first if you want to recreate the profile.",
+				profileName,
+			)
+		}
+		return newError("Failed to read or create profile '%s'.", profileName, err)
+	}
 	return telegram.Run(prof.Path, args, c.Wait)
 }
