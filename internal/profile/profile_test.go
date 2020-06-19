@@ -52,14 +52,15 @@ func (s *TestNewSuite) TestOKNotExist() {
 	s.Require().DirExists(s.path)
 }
 
-func (s *TestNewSuite) TestOKEmpty() {
+func (s *TestNewSuite) TestErrorExistEmpty() {
 	s.MakeDir(true)
 	profile, err := New(s.dir, s.name)
-	s.Require().NoError(err)
-	s.Require().Equal(profile, &Profile{s.dir, s.name, s.path})
+	s.Require().Error(err)
+	s.Require().Regexp("already exists", err.Error())
+	s.Require().Nil(profile)
 }
 
-func (s *TestNewSuite) TestErrorNotEmpty() {
+func (s *TestNewSuite) TestErrorExistNotEmpty() {
 	s.MakeDir(false)
 	profile, err := New(s.dir, s.name)
 	s.Require().Error(err)

@@ -2,7 +2,6 @@ package profile
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"strings"
@@ -30,19 +29,7 @@ func New(dir string, name string) (*Profile, error) {
 	if !info.IsDir() {
 		return nil, fmt.Errorf("%s: is a file", path)
 	}
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	switch _, err = f.Readdirnames(1); err {
-	case nil:
-		return nil, fmt.Errorf("%s: already exists", path)
-	case io.EOF:
-		return &Profile{dir, name, path}, nil
-	default:
-		return nil, err
-	}
+	return nil, fmt.Errorf("%s: already exists", path)
 }
 
 // Read checks if the profile directory exists
