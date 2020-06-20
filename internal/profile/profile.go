@@ -64,6 +64,18 @@ func Read(dir string, name string) (*Profile, error) {
 	return &Profile{dir, name, path}, nil
 }
 
+// Delete removes the profile directory
+func Delete(dir string, name string) error {
+	if !IsValidName(name) {
+		return ErrInvalidName
+	}
+	path := path.Join(dir, name)
+	if _, err := os.Stat(path); err != nil {
+		return err
+	}
+	return os.RemoveAll(path)
+}
+
 // IsValidName checks whether the profile name meets requirements
 func IsValidName(name string) bool {
 	return nameRegexp.MatchString(name)

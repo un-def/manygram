@@ -41,6 +41,8 @@ func (s *BaseSuite) MakeDir(empty bool) {
 	f.Close()
 }
 
+// New tests
+
 type TestNewSuite struct {
 	BaseSuite
 }
@@ -89,6 +91,8 @@ func TestNewSuiteTest(t *testing.T) {
 	suite.Run(t, new(TestNewSuite))
 }
 
+// Read tests
+
 type TestReadSuite struct {
 	BaseSuite
 }
@@ -110,7 +114,7 @@ func (s *TestReadSuite) TestOKNotEmpty() {
 func (s *TestReadSuite) TestErrorNotExist() {
 	profile, err := Read(s.dir, s.name)
 	s.Require().Error(err)
-	s.Require().True(errors.Is(err, os.ErrNotExist), err)
+	s.Require().True(errors.Is(err, ErrNotExist), err)
 	s.Require().Nil(profile)
 }
 
@@ -124,16 +128,49 @@ func (s *TestReadSuite) TestErrorIsFile() {
 	s.Require().Nil(profile)
 }
 
-func (s *TestReadSuite) TestErrInvalidName() {
+func (s *TestReadSuite) TestErrorInvalidName() {
 	profile, err := Read(s.dir, "1foobar")
 	s.Require().Error(err)
 	s.Require().Regexp("invalid profile name", err.Error())
 	s.Require().Nil(profile)
 }
 
-func TestReaduiteTest(t *testing.T) {
+func TestReadSuiteTest(t *testing.T) {
 	suite.Run(t, new(TestReadSuite))
 }
+
+// Delete tests
+
+type TestDeleteSuite struct {
+	BaseSuite
+}
+
+func (s *TestDeleteSuite) TestErrorNotExist() {
+	err := Delete(s.dir, "non_existent")
+	s.Require().Error(err)
+	s.Require().True(errors.Is(err, ErrNotExist), err)
+}
+
+func (s *TestDeleteSuite) TestOK() {
+	s.MakeDir(false)
+	err := Delete(s.dir, s.name)
+	s.Require().NoError(err)
+	_, err = os.Stat(s.path)
+	s.Require().Error(err)
+	s.Require().True(errors.Is(err, ErrNotExist), err)
+}
+
+func (s *TestDeleteSuite) TestErrorInvalidName() {
+	err := Delete(s.dir, "")
+	s.Require().Error(err)
+	s.Require().Regexp("invalid profile name", err.Error())
+}
+
+func TestDeleteSuiteTest(t *testing.T) {
+	suite.Run(t, new(TestDeleteSuite))
+}
+
+// IsProfileDirExist tests
 
 type TestIsProfileDirExistSuite struct {
 	suite.Suite
