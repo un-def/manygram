@@ -33,7 +33,7 @@ func readConfig() (*config.Config, error) {
 	}
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, newError(
-			"Config %s not found. Run `manygram config` to create a new config.",
+			"Config %s not found. Run `manygram config create` to create a new one.",
 			configPath, err,
 		)
 	}

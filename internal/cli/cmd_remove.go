@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	parser.AddCommand("remove", "Remove the profile", "Remove the profile", new(removeCmd))
+	parser.AddCommand("remove", "Remove the profile", "Remove the profile.", new(removeCmd))
 }
 
 type removeCmd struct {

@@ -1,7 +1,7 @@
 package cli
 
 func init() {
-	parser.AddCommand("version", "Print manygram version", "Print manygram version", new(versionCmd))
+	parser.AddCommand("version", "Print manygram version", "Print manygram version.", new(versionCmd))
 }
 
 type versionCmd struct{}

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	parser.AddCommand("create", "Create a new profile", "Create a new profile", new(createCmd))
+	parser.AddCommand("create", "Create a new profile", "Create a new profile.", new(createCmd))
 }
 
 type createCmd struct {
