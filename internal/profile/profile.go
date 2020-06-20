@@ -25,7 +25,7 @@ var ErrNotExist = os.ErrNotExist
 // ErrInvalidName indicates that the profile name does not meet requirements
 var ErrInvalidName = errors.New("invalid profile name")
 
-var profileNameRegexp = regexp.MustCompile("^[A-Za-z][A-Za-z0-9_]*$")
+var nameRegexp = regexp.MustCompile("^[A-Za-z][A-Za-z0-9_]*$")
 
 // New creates a new profile directory
 func New(dir string, name string) (*Profile, error) {
@@ -66,7 +66,7 @@ func Read(dir string, name string) (*Profile, error) {
 
 // IsValidName checks whether the profile name meets requirements
 func IsValidName(name string) bool {
-	return profileNameRegexp.MatchString(name)
+	return nameRegexp.MatchString(name)
 }
 
 // IsProfileDirExist checks whether profile directory exists
