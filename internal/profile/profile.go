@@ -16,7 +16,7 @@ type Profile struct {
 	Path string
 }
 
-// ErrAlreadyExists is returned by the New() function when the profile directory exists
+// ErrAlreadyExists is returned by the Create() function when the profile directory exists
 var ErrAlreadyExists = errors.New("already exists")
 
 // ErrNotExist is returned by the Read() function when the profile directory does not exist
@@ -27,8 +27,8 @@ var ErrInvalidName = errors.New("invalid profile name")
 
 var nameRegexp = regexp.MustCompile("^[A-Za-z][A-Za-z0-9_]*$")
 
-// New creates a new profile directory
-func New(dir string, name string) (*Profile, error) {
+// Create creates a new profile directory
+func Create(dir string, name string) (*Profile, error) {
 	if !IsValidName(name) {
 		return nil, ErrInvalidName
 	}
@@ -64,8 +64,8 @@ func Read(dir string, name string) (*Profile, error) {
 	return &Profile{dir, name, path}, nil
 }
 
-// Delete removes the profile directory
-func Delete(dir string, name string) error {
+// Remove removes the profile directory
+func Remove(dir string, name string) error {
 	if !IsValidName(name) {
 		return ErrInvalidName
 	}

@@ -20,7 +20,7 @@ func (c *createCmd) Execute(args []string) error {
 		return err
 	}
 	profileName := c.Profile.Name
-	_, err = profile.New(conf.ProfileDir, profileName)
+	_, err = profile.Create(conf.ProfileDir, profileName)
 	if err == nil {
 		printMessage("Profile '%s' has been created.", profileName)
 		return nil

@@ -20,7 +20,7 @@ func (c *removeCmd) Execute(args []string) error {
 		return err
 	}
 	profileName := c.Profile.Name
-	if err = profile.Delete(conf.ProfileDir, profileName); err == nil {
+	if err = profile.Remove(conf.ProfileDir, profileName); err == nil {
 		printMessage("Profile '%s' has been removed.", profileName)
 		return nil
 	}
