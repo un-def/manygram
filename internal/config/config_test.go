@@ -116,26 +116,3 @@ func (s *TestConfigReadSuite) TestReadOK() {
 func TestConfigReadSuiteTest(t *testing.T) {
 	suite.Run(t, new(TestConfigReadSuite))
 }
-
-// Exist tests
-
-type TestConfigExistSuite struct {
-	BaseSuite
-}
-
-func (s *TestConfigExistSuite) TestNotExist() {
-	exist, err := Exist(s.path)
-	s.Require().NoError(err)
-	s.Require().False(exist)
-}
-
-func (s *TestConfigExistSuite) TestExist() {
-	s.WriteConfig("")
-	exist, err := Exist(s.path)
-	s.Require().NoError(err)
-	s.Require().True(exist)
-}
-
-func TestConfigExistSuiteTest(t *testing.T) {
-	suite.Run(t, new(TestConfigExistSuite))
-}

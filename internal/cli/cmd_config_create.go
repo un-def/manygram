@@ -5,6 +5,7 @@ import (
 
 	"github.com/un-def/manygram/internal/config"
 	"github.com/un-def/manygram/internal/tg"
+	"github.com/un-def/manygram/internal/util"
 	"github.com/un-def/manygram/internal/xdg"
 )
 
@@ -21,7 +22,7 @@ type configCreateCmd struct {
 
 func (c *configCreateCmd) Execute(args []string) error {
 	configPath := getConfigPath()
-	exist, err := config.Exist(configPath)
+	exist, err := util.Exist(configPath)
 	if err != nil {
 		return err
 	}

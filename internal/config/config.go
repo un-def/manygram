@@ -30,18 +30,6 @@ func (c *Config) Write() error {
 	return ioutil.WriteFile(c.path, buf.Bytes(), 0644)
 }
 
-// Exist checks whether the config exist
-func Exist(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	} else if errors.Is(err, os.ErrNotExist) {
-		return false, nil
-	} else {
-		return false, err
-	}
-}
-
 // New returns new empty config
 func New(path string) *Config {
 	return &Config{path: path}
