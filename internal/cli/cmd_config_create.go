@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"os"
 
 	"github.com/un-def/manygram/internal/config"
@@ -22,16 +21,16 @@ type configCreateCmd struct {
 
 func (c *configCreateCmd) Execute(args []string) error {
 	configPath := getConfigPath()
-	_, err := os.Stat(configPath)
-	if err == nil {
-		if !c.Force {
-			return newError("Config %s already exists.", configPath)
-		}
-		printMessage("Config %s has been found. Recreating.", configPath)
-	} else if errors.Is(err, os.ErrNotExist) {
-		printMessage("Config %s is not found. Creating a new one.", configPath)
-	} else {
+	exist, err := config.Exist(configPath)
+	if err != nil {
 		return err
+	}
+	if !exist {
+		printMessage("Config %s is not found. Creating a new one.", configPath)
+	} else if c.Force {
+		printMessage("Config %s has been found. Recreating.", configPath)
+	} else {
+		return newError("Config %s already exists.", configPath)
 	}
 	conf := config.New(configPath)
 	execPath := tg.DefaultPath

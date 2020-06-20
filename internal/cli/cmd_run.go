@@ -16,9 +16,7 @@ func init() {
 }
 
 type runCmd struct {
-	Profile struct {
-		Name string `description:"Profile name" positional-arg-name:"PROFILE"`
-	} `positional-args:"true" required:"true"`
+	profileOption
 	Wait bool `short:"w" long:"wait" description:"Wait for child process to terminate"`
 }
 

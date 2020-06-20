@@ -19,6 +19,12 @@ func commandHandler(command flags.Commander, args []string) error {
 	return command.Execute(args)
 }
 
+type profileOption struct {
+	Profile struct {
+		Name string `description:"Profile name" positional-arg-name:"PROFILE"`
+	} `positional-args:"true" required:"false"`
+}
+
 // Run command line interface
 func Run(args []string) *Error {
 	parser.SubcommandsOptional = true

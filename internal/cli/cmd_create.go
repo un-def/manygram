@@ -11,9 +11,7 @@ func init() {
 }
 
 type createCmd struct {
-	Profile struct {
-		Name string `description:"Profile name" positional-arg-name:"PROFILE"`
-	} `positional-args:"true" required:"true"`
+	profileOption
 }
 
 func (c *createCmd) Execute(args []string) error {

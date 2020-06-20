@@ -10,27 +10,33 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type TestConfigReadSuite struct {
+type BaseSuite struct {
 	suite.Suite
 	dir  string
 	path string
 }
 
-func (s *TestConfigReadSuite) SetupTest() {
+func (s *BaseSuite) SetupTest() {
 	dir, err := ioutil.TempDir("", "test-config-read-*")
 	s.Require().NoError(err)
 	s.dir = dir
 	s.path = path.Join(dir, "config.toml")
 }
 
-func (s *TestConfigReadSuite) TearDownTest() {
+func (s *BaseSuite) TearDownTest() {
 	err := os.RemoveAll(s.dir)
 	s.Require().NoError(err)
 }
 
-func (s *TestConfigReadSuite) WriteConfig(content string) {
+func (s *BaseSuite) WriteConfig(content string) {
 	err := ioutil.WriteFile(s.path, []byte(content), 0644)
 	s.Require().NoError(err)
+}
+
+// Read tests
+
+type TestConfigReadSuite struct {
+	BaseSuite
 }
 
 func (s *TestConfigReadSuite) TestReadNotExist() {
@@ -109,4 +115,27 @@ func (s *TestConfigReadSuite) TestReadOK() {
 
 func TestConfigReadSuiteTest(t *testing.T) {
 	suite.Run(t, new(TestConfigReadSuite))
+}
+
+// Exist tests
+
+type TestConfigExistSuite struct {
+	BaseSuite
+}
+
+func (s *TestConfigExistSuite) TestNotExist() {
+	exist, err := Exist(s.path)
+	s.Require().NoError(err)
+	s.Require().False(exist)
+}
+
+func (s *TestConfigExistSuite) TestExist() {
+	s.WriteConfig("")
+	exist, err := Exist(s.path)
+	s.Require().NoError(err)
+	s.Require().True(exist)
+}
+
+func TestConfigExistSuiteTest(t *testing.T) {
+	suite.Run(t, new(TestConfigExistSuite))
 }
