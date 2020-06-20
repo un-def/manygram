@@ -7,60 +7,106 @@ import (
 	"path"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestReadNotExist(t *testing.T) {
-	dir, err := ioutil.TempDir("", "test-config-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(dir)
-	conf, err := Read(path.Join(dir, "conf", "config.toml"))
-	require.Error(t, err)
-	require.True(t, errors.Is(err, os.ErrNotExist), err)
-	require.Nil(t, conf)
+type TestConfigReadSuite struct {
+	suite.Suite
+	dir  string
+	path string
 }
 
-func TestReadIsDirectory(t *testing.T) {
-	dir, err := ioutil.TempDir("", "test-config-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(dir)
-	conf, err := Read(dir)
-	require.Error(t, err)
-	require.Regexp(t, "is a directory", err.Error())
-	require.Nil(t, conf)
+func (s *TestConfigReadSuite) SetupTest() {
+	dir, err := ioutil.TempDir("", "test-config-read-*")
+	s.Require().NoError(err)
+	s.dir = dir
+	s.path = path.Join(dir, "config.toml")
 }
 
-func TestReadMalformed(t *testing.T) {
-	content := []byte(`bad!format: = 123`)
-	tmpfile, err := ioutil.TempFile("", "test-config-*.toml")
-	require.NoError(t, err)
-	defer os.Remove(tmpfile.Name())
-	defer tmpfile.Close()
-	_, err = tmpfile.Write(content)
-	require.NoError(t, err)
-	conf, err := Read(tmpfile.Name())
-	require.Error(t, err)
-	require.Regexp(t, "bare keys cannot contain", err.Error())
-	require.Nil(t, conf)
+func (s *TestConfigReadSuite) TearDownTest() {
+	err := os.RemoveAll(s.dir)
+	s.Require().NoError(err)
 }
 
-func TestReadOK(t *testing.T) {
-	content := []byte(`
+func (s *TestConfigReadSuite) WriteConfig(content string) {
+	err := ioutil.WriteFile(s.path, []byte(content), 0644)
+	s.Require().NoError(err)
+}
+
+func (s *TestConfigReadSuite) TestReadNotExist() {
+	conf, err := Read(path.Join(s.dir, "conf", "config.toml"))
+	s.Require().Error(err)
+	s.Require().True(errors.Is(err, os.ErrNotExist), err)
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadIsDirectory() {
+	conf, err := Read(s.dir)
+	s.Require().Error(err)
+	s.Require().Regexp("is a directory", err.Error())
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadMalformed() {
+	s.WriteConfig(`bad!format: = 123`)
+	conf, err := Read(s.path)
+	s.Require().Error(err)
+	s.Require().Regexp("bare keys cannot contain", err.Error())
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadNoExecPath() {
+	s.WriteConfig(`profile-dir = "/path/to/profiles"`)
+	conf, err := Read(s.path)
+	s.Require().Error(err)
+	s.Require().Regexp("exec-path.*is not defined", err.Error())
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadEmptyExecPath() {
+	s.WriteConfig(`
+		exec-path = ""
+		profile-dir = "/path/to/profiles"
+	`)
+	conf, err := Read(s.path)
+	s.Require().Error(err)
+	s.Require().Regexp("exec-path.*is empty", err.Error())
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadNoProfileDir() {
+	s.WriteConfig(`exec-path = "/path/to/bin"`)
+	conf, err := Read(s.path)
+	s.Require().Error(err)
+	s.Require().Regexp("profile-dir.*is not defined", err.Error())
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadEmptyProfileDir() {
+	s.WriteConfig(`
+		exec-path = "/path/to/bin"
+		profile-dir = "   "
+	`)
+	conf, err := Read(s.path)
+	s.Require().Error(err)
+	s.Require().Regexp("profile-dir.*is empty", err.Error())
+	s.Require().Nil(conf)
+}
+
+func (s *TestConfigReadSuite) TestReadOK() {
+	s.WriteConfig(`
 		exec-path = "/path/to/bin"
 		profile-dir = "/path/to/profiles"
 	`)
-	tmpfile, err := ioutil.TempFile("", "test-config-*.toml")
-	require.NoError(t, err)
-	defer os.Remove(tmpfile.Name())
-	defer tmpfile.Close()
-	_, err = tmpfile.Write(content)
-	require.NoError(t, err)
-	path := tmpfile.Name()
-	conf, err := Read(path)
-	require.NoError(t, err)
-	require.Equal(t, &Config{
-		path:       path,
+	conf, err := Read(s.path)
+	s.Require().NoError(err)
+	s.Require().Equal(&Config{
+		path:       s.path,
 		ExecPath:   "/path/to/bin",
 		ProfileDir: "/path/to/profiles",
 	}, conf)
+}
+
+func TestConfigReadSuiteTest(t *testing.T) {
+	suite.Run(t, new(TestConfigReadSuite))
 }

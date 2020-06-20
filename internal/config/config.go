@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -45,12 +46,25 @@ func Read(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if !md.IsDefined("exec-path") {
-		return nil, errors.New("exec-path is not defined")
+		return nil, errors.New("`exec-path` parameter is not defined")
 	}
+	execPath := strings.TrimSpace(conf.ExecPath)
+	if execPath == "" {
+		return nil, errors.New("`exec-path` parameter is empty")
+	}
+	conf.ExecPath = execPath
+
 	if !md.IsDefined("profile-dir") {
-		return nil, errors.New("profile-dir is not defined")
+		return nil, errors.New("`profile-dir` parameter is not defined")
 	}
+	profileDir := strings.TrimSpace(conf.ProfileDir)
+	if profileDir == "" {
+		return nil, errors.New("`profile-dir` parameter is empty")
+	}
+	conf.ProfileDir = profileDir
+
 	conf.path = path
 	return conf, nil
 }

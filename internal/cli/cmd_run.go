@@ -31,12 +31,8 @@ func (c *runCmd) Execute(args []string) error {
 	if err != nil {
 		return newError("Failed to locale Telegram Desktop executable. Check `exec-path` config parameter.", err)
 	}
-	profileDir, err := getProfileDirParameter(conf)
-	if err != nil {
-		return err
-	}
 	profileName := c.Profile.Name
-	prof, err := profile.Read(profileDir, profileName)
+	prof, err := profile.Read(conf.ProfileDir, profileName)
 	if err != nil {
 		if errors.Is(err, profile.ErrInvalidName) {
 			return profileNameError(profileName)

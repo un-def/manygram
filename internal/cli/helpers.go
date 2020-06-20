@@ -39,18 +39,3 @@ func readConfig() (*config.Config, error) {
 	}
 	return nil, newError("Failed to read config %s", configPath, err)
 }
-
-func getProfileDirParameter(conf *config.Config) (string, error) {
-	if conf == nil {
-		var err error
-		conf, err = readConfig()
-		if err != nil {
-			return "", err
-		}
-	}
-	profileDir := conf.ProfileDir
-	if profileDir == "" {
-		return "", newError("`profile-dir` config parameter is not set.")
-	}
-	return profileDir, nil
-}

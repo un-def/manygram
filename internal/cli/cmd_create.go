@@ -17,12 +17,12 @@ type createCmd struct {
 }
 
 func (c *createCmd) Execute(args []string) error {
-	profileDir, err := getProfileDirParameter(nil)
+	conf, err := readConfig()
 	if err != nil {
 		return err
 	}
 	profileName := c.Profile.Name
-	_, err = profile.New(profileDir, profileName)
+	_, err = profile.New(conf.ProfileDir, profileName)
 	if err == nil {
 		printMessage("Profile '%s' has been created.", profileName)
 		return nil
