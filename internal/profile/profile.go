@@ -19,7 +19,7 @@ type Profile struct {
 // ErrAlreadyExists is returned by the Create() function when the profile directory exists
 var ErrAlreadyExists = errors.New("already exists")
 
-// ErrNotExist is returned by the Read() function when the profile directory does not exist
+// ErrNotExist is returned by the Read() and Remove() functions when the profile directory does not exist
 var ErrNotExist = os.ErrNotExist
 
 // ErrInvalidName indicates that the profile name does not meet requirements
@@ -27,12 +27,17 @@ var ErrInvalidName = errors.New("invalid profile name")
 
 var nameRegexp = regexp.MustCompile("^[A-Za-z][A-Za-z0-9_]*$")
 
+// Path builds the path to the profile directory
+func Path(dir string, name string) string {
+	return path.Join(dir, name)
+}
+
 // Create creates a new profile directory
 func Create(dir string, name string) (*Profile, error) {
 	if !IsValidName(name) {
 		return nil, ErrInvalidName
 	}
-	path := path.Join(dir, name)
+	path := Path(dir, name)
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		if err := os.MkdirAll(path, 0755); err != nil {
@@ -53,7 +58,7 @@ func Read(dir string, name string) (*Profile, error) {
 	if !IsValidName(name) {
 		return nil, ErrInvalidName
 	}
-	path := path.Join(dir, name)
+	path := Path(dir, name)
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -69,7 +74,7 @@ func Remove(dir string, name string) error {
 	if !IsValidName(name) {
 		return ErrInvalidName
 	}
-	path := path.Join(dir, name)
+	path := Path(dir, name)
 	if _, err := os.Stat(path); err != nil {
 		return err
 	}

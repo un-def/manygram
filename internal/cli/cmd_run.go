@@ -1,9 +1,6 @@
 package cli
 
 import (
-	"errors"
-
-	"github.com/un-def/manygram/internal/profile"
 	"github.com/un-def/manygram/internal/tg"
 )
 
@@ -30,15 +27,9 @@ func (c *runCmd) Execute(args []string) error {
 		return newError("Failed to locale Telegram Desktop executable. Check `exec-path` config parameter.", err)
 	}
 	profileName := c.Profile.Name
-	prof, err := profile.Read(conf.ProfileDir, profileName)
+	prof, err := readProfile(conf.ProfileDir, profileName)
 	if err != nil {
-		if errors.Is(err, profile.ErrInvalidName) {
-			return profileNameError(profileName)
-		}
-		if errors.Is(err, profile.ErrNotExist) {
-			return newError("Profile '%s' does not exist. Use `manygram create %[1]s` to create a new one.", profileName)
-		}
-		return newError("Failed to read profile '%s'.", profileName, err)
+		return err
 	}
 	return telegram.Run(prof.Path, args, c.Wait)
 }

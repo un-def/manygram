@@ -12,6 +12,7 @@ func init() {
 
 type createCmd struct {
 	profileOption
+	Desktop bool `short:"d" long:"desktop" description:"Also create a desktop entry"`
 }
 
 func (c *createCmd) Execute(args []string) error {
@@ -21,18 +22,25 @@ func (c *createCmd) Execute(args []string) error {
 	}
 	profileName := c.Profile.Name
 	_, err = profile.Create(conf.ProfileDir, profileName)
-	if err == nil {
-		printMessage("Profile '%s' has been created.", profileName)
-		return nil
+	if err != nil {
+		if errors.Is(err, profile.ErrInvalidName) {
+			return profileNameError(profileName)
+		}
+		if errors.Is(err, profile.ErrAlreadyExists) {
+			return newError(
+				"Profile '%s' already exists. Use `manygram remove %[1]s` first if you want to recreate the profile.",
+				profileName,
+			)
+		}
+		return newError("Failed to create profile '%s'.", profileName, err)
+
 	}
-	if errors.Is(err, profile.ErrInvalidName) {
-		return profileNameError(profileName)
+	printMessage("Profile '%s' has been created.", profileName)
+	if c.Desktop {
+		if err := createDesktopEntry(conf, profileName); err != nil {
+			return err
+		}
+		printMessage("Desktop entry for profile has been created.")
 	}
-	if errors.Is(err, profile.ErrAlreadyExists) {
-		return newError(
-			"Profile '%s' already exists. Use `manygram remove %[1]s` first if you want to recreate the profile.",
-			profileName,
-		)
-	}
-	return newError("Failed to create profile '%s'.", profileName, err)
+	return nil
 }

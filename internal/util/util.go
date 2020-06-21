@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// Exist checks whether the specified path exist
+// Exist checks whether the specified path exists
 func Exist(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
