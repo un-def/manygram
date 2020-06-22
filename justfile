@@ -38,4 +38,4 @@ test:
   go test -v ./...
 
 archive: build
-  tar -czf {{archive_name}}.tar.gz {{build_output}} LICENSE README.md
+  tar -czf {{archive_name}}.tar.gz {{build_output}} LICENSE README.md CHANGELOG.md
