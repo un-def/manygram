@@ -22,7 +22,7 @@ func (c *runCmd) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	telegram, err := tg.Executable(conf.ExecPath)
+	telegram, err := tg.Executable(conf.ExecPath, conf.ExecArgs)
 	if err != nil {
 		return newError("Failed to locale Telegram Desktop executable. Check `exec-path` config parameter.", err)
 	}

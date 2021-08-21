@@ -22,7 +22,7 @@ func (c *configCheckCmd) Execute(args []string) error {
 		return err
 	}
 	printMessage("Config %s found. Checking.", getConfigPath())
-	telegram, err := tg.Executable(conf.ExecPath)
+	telegram, err := tg.Executable(conf.ExecPath, nil)
 	if err != nil {
 		return newError("Check error: `exec-path`", err)
 	}

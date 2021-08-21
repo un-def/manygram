@@ -14,8 +14,9 @@ import (
 // Config ...
 type Config struct {
 	path       string
-	ExecPath   string `toml:"exec-path"`
-	ProfileDir string `toml:"profile-dir"`
+	ExecPath   string   `toml:"exec-path"`
+	ExecArgs   []string `toml:"exec-args"`
+	ProfileDir string   `toml:"profile-dir"`
 }
 
 func (c *Config) Write() error {

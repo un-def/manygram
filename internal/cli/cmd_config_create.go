@@ -37,7 +37,7 @@ func (c *configCreateCmd) Execute(args []string) error {
 	execPath := tg.DefaultPath
 	conf.ExecPath = execPath
 	dataDir := xdg.GetDataHome()
-	telegram, err := tg.Executable(execPath)
+	telegram, err := tg.Executable(execPath, nil)
 	if err != nil {
 		printMessage("Telegram Desktop executable not found.")
 	} else {

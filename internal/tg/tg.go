@@ -20,10 +20,11 @@ type TelegramDesktop struct {
 	Path     string
 	FullPath string
 	RealPath string
+	Args     []string
 }
 
 // Executable returns TelegramDesktop struct or error if executable not found
-func Executable(path string) (*TelegramDesktop, error) {
+func Executable(path string, args []string) (*TelegramDesktop, error) {
 	fullPath, err := exec.LookPath(path)
 	if err != nil {
 		return nil, wrapError(err)
@@ -32,12 +33,15 @@ func Executable(path string) (*TelegramDesktop, error) {
 	if err != nil {
 		return nil, wrapError(err)
 	}
-	return &TelegramDesktop{path, fullPath, realPath}, nil
+	return &TelegramDesktop{path, fullPath, realPath, args}, nil
 }
 
 // Run executes telegram-desktop executable
 func (tg *TelegramDesktop) Run(profilePath string, extraArgs []string, wait bool) error {
-	args := append([]string{tg.Path, "-many", "-workdir", profilePath}, extraArgs...)
+	args := make([]string, len(tg.Args))
+	copy(args, tg.Args)
+	args = append(args, "-many", "-workdir", profilePath)
+	args = append(args, extraArgs...)
 	cmd := exec.Command(tg.Path, args...)
 	if wait {
 		cmd.Stdout = os.Stdout
