@@ -55,14 +55,14 @@ func (s *TestTelegramSuite) CreateSymlink(src string, dest string) {
 }
 
 func (s *TestTelegramSuite) TestErrPathNotExist() {
-	tg, err := Executable(s.execPath)
+	tg, err := Executable(s.execPath, nil)
 	s.Require().Error(err)
 	s.ErrorIs(err, os.ErrNotExist)
 	s.Require().Nil(tg)
 }
 
 func (s *TestTelegramSuite) TestErrPathIsDir() {
-	tg, err := Executable(s.dir)
+	tg, err := Executable(s.dir, nil)
 	s.Require().Error(err)
 	s.ErrorIs(err, os.ErrPermission)
 	s.Require().Nil(tg)
@@ -70,14 +70,14 @@ func (s *TestTelegramSuite) TestErrPathIsDir() {
 
 func (s *TestTelegramSuite) TestErrPathIsNotExecutable() {
 	s.CreateFile(s.execPath, false)
-	tg, err := Executable(s.execPath)
+	tg, err := Executable(s.execPath, nil)
 	s.Require().Error(err)
 	s.ErrorIs(err, os.ErrPermission)
 	s.Require().Nil(tg)
 }
 
 func (s *TestTelegramSuite) TestErrNameNotExist() {
-	tg, err := Executable(execName)
+	tg, err := Executable(execName, nil)
 	s.Require().Error(err)
 	s.ErrorIs(err, exec.ErrNotFound)
 	s.Require().Nil(tg)
@@ -85,12 +85,13 @@ func (s *TestTelegramSuite) TestErrNameNotExist() {
 
 func (s *TestTelegramSuite) TestOKPath() {
 	s.CreateFile(s.execPath, true)
-	tg, err := Executable(s.execPath)
+	tg, err := Executable(s.execPath, nil)
 	s.Require().NoError(err)
 	s.Require().Equal(&TelegramDesktop{
 		s.execPath,
 		s.execPath,
 		s.execPath,
+		nil,
 	}, tg)
 }
 
@@ -98,12 +99,13 @@ func (s *TestTelegramSuite) TestOKPathSymlink() {
 	s.CreateFile(s.execPath, true)
 	symlinkPath := path.Join(s.dir, symlinkName)
 	s.CreateSymlink(s.execPath, symlinkPath)
-	tg, err := Executable(symlinkPath)
+	tg, err := Executable(symlinkPath, nil)
 	s.Require().NoError(err)
 	s.Require().Equal(&TelegramDesktop{
 		symlinkPath,
 		symlinkPath,
 		s.execPath,
+		nil,
 	}, tg)
 }
 
@@ -112,12 +114,25 @@ func (s *TestTelegramSuite) TestOKName() {
 	origPATH := os.Getenv("PATH")
 	defer func() { os.Setenv("PATH", origPATH) }()
 	os.Setenv("PATH", fmt.Sprintf("%s:%s", s.dir, origPATH))
-	tg, err := Executable(execName)
+	tg, err := Executable(execName, nil)
 	s.Require().NoError(err)
 	s.Require().Equal(&TelegramDesktop{
 		execName,
 		s.execPath,
 		s.execPath,
+		nil,
+	}, tg)
+}
+
+func (s *TestTelegramSuite) TestOKWithArgs() {
+	s.CreateFile(s.execPath, true)
+	tg, err := Executable(s.execPath, []string{"-extra1", "-extra2"})
+	s.Require().NoError(err)
+	s.Require().Equal(&TelegramDesktop{
+		s.execPath,
+		s.execPath,
+		s.execPath,
+		[]string{"-extra1", "-extra2"},
 	}, tg)
 }
 
@@ -125,7 +140,7 @@ func (s *TestTelegramSuite) TestIsSnapFalse() {
 	s.CreateFile(s.execPath, true)
 	symlinkPath := path.Join(s.dir, symlinkName)
 	s.CreateSymlink(s.execPath, symlinkPath)
-	tg, err := Executable(symlinkPath)
+	tg, err := Executable(symlinkPath, nil)
 	s.Require().NoError(err)
 	s.Require().False(tg.IsSnap())
 }
@@ -135,7 +150,7 @@ func (s *TestTelegramSuite) TestIsSnapTrue() {
 	s.CreateFile(snapPath, true)
 	symlinkPath := path.Join(s.dir, symlinkName)
 	s.CreateSymlink(snapPath, symlinkPath)
-	tg, err := Executable(symlinkPath)
+	tg, err := Executable(symlinkPath, nil)
 	s.Require().NoError(err)
 	s.Require().True(tg.IsSnap())
 }
