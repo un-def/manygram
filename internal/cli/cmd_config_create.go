@@ -34,21 +34,40 @@ func (c *configCreateCmd) Execute(args []string) error {
 		return newError("Config %s already exists.", configPath)
 	}
 	conf := config.New(configPath)
-	execPath := tg.DefaultPath
-	conf.ExecPath = execPath
-	dataDir := xdg.GetDataHome()
-	telegram, err := tg.Executable(execPath, nil)
-	if err != nil {
-		printMessage("Telegram Desktop executable not found.")
-	} else {
+	var dataDir string
+	telegram, err := tg.Executable(tg.DefaultPath, nil)
+	if err == nil {
 		printMessage("Telegram Desktop executable: %s -> %s", telegram.Path, telegram.FullPath)
-	}
-	if telegram != nil && telegram.IsSnap() {
-		printMessage("Telegram Desktop seems installed via snap.")
-		if dataDir, err = tg.GetSnapDataHome(); err != nil {
-			printMessage("Cannot find snap data directory, use fallback data location.")
-			dataDir = os.Getenv("HOME")
+		conf.ExecPath = telegram.Path
+		if telegram.IsSnap() {
+			printMessage("Telegram Desktop seems installed via snap.")
+			dataDir, err = tg.GetSnapDataHome()
+			if err != nil {
+				printMessage("Cannot find snap data directory, use fallback data location.")
+				// snap has no access to dot files/dirs (e.g., ~/.local)
+				dataDir = os.Getenv("HOME")
+			}
 		}
+	} else {
+		telegram, err = tg.Flatpak()
+		if err == nil {
+			printMessage("Telegram Desktop installed via Flatpak.")
+			conf.ExecPath = telegram.Path
+			conf.ExecArgs = telegram.Args
+			dataDir, err = tg.GetFlatpakDataHome()
+			if err != nil {
+				printMessage("Cannot find Flatpak data directory, use fallback data location.")
+				dataDir = xdg.GetDataHome()
+			}
+		} else {
+			printMessage("Telegram Desktop executable not found.")
+		}
+	}
+	if conf.ExecPath == "" {
+		conf.ExecPath = tg.DefaultPath
+	}
+	if dataDir == "" {
+		dataDir = xdg.GetDataHome()
 	}
 	profileDir := getDefaultProfileDir(dataDir)
 	printMessage("Profile directory: %s", profileDir)

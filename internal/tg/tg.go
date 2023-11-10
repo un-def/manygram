@@ -1,16 +1,12 @@
 package tg
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 )
-
-func wrapError(err error) error {
-	return fmt.Errorf("check executable: %w", err)
-}
 
 // DefaultPath is the default path/name of Telegram Desktop executable
 const DefaultPath = "telegram-desktop"
@@ -27,11 +23,11 @@ type TelegramDesktop struct {
 func Executable(path string, args []string) (*TelegramDesktop, error) {
 	fullPath, err := exec.LookPath(path)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 	realPath, err := filepath.EvalSymlinks(fullPath)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 	return &TelegramDesktop{path, fullPath, realPath, args}, nil
 }
@@ -63,4 +59,32 @@ func GetSnapDataHome() (string, error) {
 		return "", err
 	}
 	return snapDataHome, nil
+}
+
+const flatpakExecName = "flatpak"
+const flatpakAppID = "org.telegram.desktop"
+
+// Flatpak returns TelegramDesktop struct representing Telegram Desktop Flatpak app
+// or error if Flatpak or app is not installed
+func Flatpak() (*TelegramDesktop, error) {
+	flatpakExecPath, err := exec.LookPath(flatpakExecName)
+	if err != nil {
+		return nil, errors.New("flatpak executable not found")
+	}
+	if err := exec.Command(flatpakExecPath, "--user", "info", flatpakAppID).Run(); err == nil {
+		return Executable(flatpakExecName, []string{"run", "--user", flatpakAppID})
+	}
+	if err := exec.Command(flatpakExecPath, "info", flatpakAppID).Run(); err == nil {
+		return Executable(flatpakExecName, []string{"run", flatpakAppID})
+	}
+	return nil, errors.New(flatpakAppID + " flatpak app not found")
+}
+
+// GetFlatpakHome returns XDG_DATA_HOME of Telegram Desktop Flatpak app or error
+func GetFlatpakDataHome() (string, error) {
+	flatpakDataHome := os.ExpandEnv("$HOME/.var/app/" + flatpakAppID + "/data")
+	if _, err := os.Stat(flatpakDataHome); err != nil {
+		return "", err
+	}
+	return flatpakDataHome, nil
 }
