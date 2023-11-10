@@ -12,10 +12,8 @@ import (
 	"github.com/un-def/manygram/internal/xdg"
 )
 
-const profileDirName = "profiles"
-
 func getDefaultProfileDir(dataDir string) string {
-	return path.Join(dataDir, "manygram", profileDirName)
+	return path.Join(dataDir, "manygram", "profiles")
 }
 
 func getDesktopEntriesDir() string {
