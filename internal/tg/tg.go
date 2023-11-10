@@ -38,7 +38,7 @@ func Executable(path string, args []string) (*TelegramDesktop, error) {
 
 // Run executes telegram-desktop executable
 func (tg *TelegramDesktop) Run(profilePath string, extraArgs []string, wait bool) error {
-	args := make([]string, len(tg.Args))
+	args := make([]string, len(tg.Args)+len(extraArgs)+3)
 	copy(args, tg.Args)
 	args = append(args, "-many", "-workdir", profilePath)
 	args = append(args, extraArgs...)
