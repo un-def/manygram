@@ -1,5 +1,5 @@
 project := 'manygram'
-version := '0.2.0.dev0'
+version := '0.2.0'
 
 export GOOS := 'linux'
 export GOARCH := 'amd64'
@@ -37,5 +37,5 @@ clean:
 test:
   go test -v ./...
 
-archive: build
+archive: clean build
   tar -czf {{archive_name}}.tar.gz {{build_output}} LICENSE README.md CHANGELOG.md

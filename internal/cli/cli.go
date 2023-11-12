@@ -6,7 +6,7 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-const manygramVersion = "0.2.0.dev0"
+const manygramVersion = "0.2.0"
 
 var parserFlags flags.Options = flags.HelpFlag | flags.PassDoubleDash
 var parser = flags.NewParser(nil, parserFlags)
